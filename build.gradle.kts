@@ -8,9 +8,19 @@ repositories {
 }
 
 kotlin {
-    // macosX64("native") { // on macOS
-    linuxX64("native") { // on Linux
-    // mingwX64("native") { // on Windows
+    macosX64("nativeMac") { // on macOS
+        binaries {
+            executable()
+        }
+    }
+
+    linuxX64("nativeLinux") { // on Linux
+        binaries {
+            executable()
+        }
+    }
+
+    mingwX64("nativeWindows") { // on Windows
         binaries {
             executable()
         }
@@ -28,4 +38,14 @@ kotlin {
 tasks.withType<Wrapper> {
     gradleVersion = "7.5.1"
     distributionType = Wrapper.DistributionType.BIN
+}
+
+tasks.register("githubNativeOs") {
+    val native = when (System.getenv("GITHUB_BUILD_OS")) {
+        "ubuntu-latest" -> "nativeLinuxBinaries"
+        "windows-latest" -> "nativeWindowsBinaries"
+        "macos-latest" -> "nativeMacBinaries"
+        else -> throw(IllegalArgumentException("please export GITHUB_BUILD_OS env.var."))
+    }
+    dependsOn(native)
 }
