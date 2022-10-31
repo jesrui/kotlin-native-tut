@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+if [[ "${OS-}" = Windows_NT ]]; then
+	DIFF='diff --strip-trailing-cr'
+else
+	DIFF='diff'
+fi
+
 # excutable suffix is either .exe (on windows) or .kexe
 case "$(uname)" in
 	MINGW*)	SUFFIX=.exe;;
@@ -25,7 +31,7 @@ Options:
 
 '
 
-	diff -u <($exe 2>&1) <(echo -n "$expected_usage")
+	$DIFF -u <($exe 2>&1) <(echo -n "$expected_usage")
 }
 
 check_output() {
@@ -38,7 +44,7 @@ check_output() {
 	rm -f out.txt
 	$exe -i dontcare
 
-	diff -u out.txt <(echo -n "$expected_output")
+	$DIFF -u out.txt <(echo -n "$expected_output")
 }
 
 for exe in "$DEBUG_EXE" "$RELEASE_EXE"; do
